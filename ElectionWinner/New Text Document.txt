@@ -1,0 +1,38 @@
+class Person{
+private:
+    string name;
+    mutable int numOfVotes;
+  public:
+    Person(string n): name(n), numOfVotes(0){}
+    void incrementVote() const {numOfVotes++;}
+    string getName(){ return name;}
+    int getNumberOfVotes() {return numOfVotes;}
+    bool operator<(const Person &p) const { return name < p.name; }
+    friend struct Person_Vote_Compare;
+};
+
+struct Person_Vote_Compare {
+  inline bool operator()(const Person *&p1, const Person *&p2) {
+    return (p1->numOfVotes > p2->numOfVotes || (p1->numOfVotes == p2->numOfVotes && p1->name > p2->name));
+  }
+};
+
+string electionWinner(vector<string> votes) {
+    set<Person> voteCounts;
+    for(int i=0; i< votes.size(); i++){
+        Person tmp(votes[i]);
+        if (voteCounts.find(tmp) != voteCounts.end()) {
+          voteCounts.find(tmp)->incrementVote();
+        }else {
+            voteCounts.insert(tmp);
+        }
+    }
+    vector<Person*> candidates(voteCounts.begin(), voteCounts.end());
+    sort(candidates.begin(), candidates.end(), Person_Vote_Compare());
+    for(int i=0; i < candidates.size(); i++){
+        cout << candidates[i]->getName() <<" : " << candidates[i]->getNumberOfVotes() << endl;
+    }
+    cout << endl;
+    return candidates[0]->getName();
+
+}
